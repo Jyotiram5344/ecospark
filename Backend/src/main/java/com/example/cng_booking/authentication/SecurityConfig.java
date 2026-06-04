@@ -59,7 +59,7 @@ public class SecurityConfig {
             corsConfig.setAllowCredentials(true);
             if (allowedOrigins != null) {
                 for (String origin : allowedOrigins) {
-                    corsConfig.addAllowedOrigin(origin.trim());
+                    corsConfig.addAllowedOriginPattern(origin.trim());
                 }
             }
             corsConfig.addAllowedHeader("*");
