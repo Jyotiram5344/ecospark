@@ -1,5 +1,6 @@
 package com.example.cng_booking.authentication;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod; // ✅ ADDED IMPORT
@@ -19,6 +20,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    @Value("${cors.allowed-origins}")
+    private String[] allowedOrigins;
 
     private final JwtAuthFilter jwtAuthFilter;
     private final PumpAdminSubscriptionFilter pumpAdminSubscriptionFilter;
@@ -51,17 +55,17 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
 
         http.cors(cors -> cors.configurationSource(request -> {
-    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-    corsConfig.setAllowCredentials(true);
-    // Local frontend (Vite)
-    corsConfig.addAllowedOrigin("http://localhost:5173");
-    corsConfig.addAllowedOrigin("http://127.0.0.1:5173");
-    corsConfig.addAllowedOrigin("http://localhost:4173");
-    corsConfig.addAllowedOrigin("http://127.0.0.1:4173");
-    corsConfig.addAllowedHeader("*");
-    corsConfig.addAllowedMethod("*");
-    return corsConfig;
-}));
+            var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+            corsConfig.setAllowCredentials(true);
+            if (allowedOrigins != null) {
+                for (String origin : allowedOrigins) {
+                    corsConfig.addAllowedOrigin(origin.trim());
+                }
+            }
+            corsConfig.addAllowedHeader("*");
+            corsConfig.addAllowedMethod("*");
+            return corsConfig;
+        }));
 
         http.sessionManagement(sess ->
                 sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
